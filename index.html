@@ -1,0 +1,93 @@
+<html>
+    <head></head>
+    <body>
+        <div id="game"></div>
+        <script type="text/javascript" src="https://rawgithub.com/craftyjs/Crafty/release/dist/crafty-min.js"></script>
+        <script>
+            Crafty.init(500,350, document.getElementById('game'));
+
+            const game_assets = {
+                "sprites": {
+                    "hero_spritesheet.png": {
+                    tile: 80,
+                    tileh: 94,
+                    map: {
+                        hero_idle: [0, 0],
+                        hero_walking: [1, 1],
+                        hero_jumping: [2, 3],
+                        hero_sitting: [0, 4]
+                    }
+                    }
+                }
+            };
+
+            Crafty.load(game_assets);
+
+            Crafty.e('Floor, 2D, Canvas, Color')
+                .attr({x: 0, y: 250, w: 600, h:10})
+                .color('green');
+
+            Crafty.e('Floor, 2D, Canvas, Color')
+                .attr({x: 300, y: 150, w: 80, h:10})
+                .color('green');
+
+            Crafty.e('2D, Canvas, Color, Obstacle')
+                .attr({x: 400, y: 70, w: 80, h:10})
+                .color('green');
+
+            const hero = Crafty.e('2D, Canvas, hero_idle, Gravity, SpriteAnimation, Twoway, Collision')
+                .attr({ x: 0, y: 0 })
+                .twoway(200)
+                .gravity('Floor')
+                .checkHits('Obstacle')
+                .bind('HitOn', function(hitData) {
+                    Crafty('Obstacle').color('red');
+                    Crafty('Obstacle').flip('X');
+                    console.log(hitData)
+                })
+                .bind('HitOff', function(hitData){
+                    Crafty('Obstacle').color('green');
+                });
+
+            hero.reel("walking", 1000, [
+                [0, 1],
+                [1, 1],
+                [2, 1],
+                [3, 1],
+                [4, 1],
+                [5, 1]
+            ]);
+
+            hero.reel('jumping',1000, [
+                [0, 3],
+                [1, 3],
+                [2, 3],
+                [1, 3],
+                [0, 3]
+            ]);
+
+            hero.reel('sitting', 1000, [
+                [0, 4],
+                [1,4]
+            ]);
+
+            hero.bind('KeyDown', function(evt) {
+                if (evt.key == Crafty.keys.UP_ARROW) {
+                    hero.animate('jumping', 1);
+                }
+                if (evt.key == Crafty.keys.DOWN_ARROW) {
+                    hero.animate('sitting', 1);
+                }
+                if (evt.key == Crafty.keys.RIGHT_ARROW) {
+                    hero.animate('walking', 1);
+                    hero.unflip('X');
+                }
+                if (evt.key == Crafty.keys.LEFT_ARROW) {
+                    hero.animate('walking', 1)
+                    hero.flip('X');
+                }
+            });
+
+        </script>
+    </body>
+</html>
